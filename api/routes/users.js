@@ -5,7 +5,6 @@ const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const jwt_check = require("../middleware/jwt_authorize");
-const auth = require("../middleware/mw");
 
 //  Get ALL users
 router.get("/users", (req, res, next) => {
