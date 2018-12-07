@@ -6,7 +6,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const jwt_check = require("../middleware/jwt_authorize");
 const auth = require("../middleware/mw");
-const goat = new auth("Josh", "poop@poop.com");
 
 //  Get ALL users
 router.get("/users", (req, res, next) => {
@@ -81,11 +80,11 @@ router.post("/", (req, res, next) => {
     });
 });
 
-//  User Login
+
 
 //  GET Login
 router.get("/", (req, res, next) => {
-  res.render("./pages/login/index", { message: "yes" });
+  res.render("./pages/login/index", { message: "place holder for error", hide: true });
 });
 
 //  POST Login

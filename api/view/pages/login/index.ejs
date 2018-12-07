@@ -69,7 +69,10 @@
                 </div>
               </div>
             </form>
-            <%= message %>
+            <%if (!hide) { %>
+
+              <%= message %>
+              <% } %>
             </div>
           </div>
         </div>
