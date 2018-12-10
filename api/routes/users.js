@@ -153,8 +153,8 @@ router.patch("/:user", (req, res, next) => {
 
 //  Delete ONE user
 router.delete("/:user", (req, res, next) => {
-  const user = req.params.user;
 
+  const user = req.params.user;
   User.deleteOne({ _id: user })
     .exec()
     .then(result => {
