@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const settings = require('../../settings');
 const mongoose = require("mongoose");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt_check = require("../middleware/jwt_authorize");
+const mw = require('../middleware/user_check')
 
 //  Get ALL users
 router.get("/users", (req, res, next) => {
@@ -21,31 +23,38 @@ router.get("/users", (req, res, next) => {
 });
 
 //  Get ONE user
-router.get("/:user", jwt_check, (req, res, next) => {
-  const user = req.params.user;
+router.get("/:user", (req, res, next) => {
+  const userId = req.params.user;
 
-  User.findById(user)
+  User.findById(userId)
     .exec()
     .then(doc => {
       if (doc) {
-        console.log("User found: " + doc.email);
+        console.log("User found: " + doc);
         res.status(200).json({
           message: "User found",
-          email: doc.email
+          email: doc.email,
+          userId: doc._id
         });
       } else {
-        res.status(404).json({ message: "404 - Item not found." });
+        res.status(404).json({
+          message: "404 - Item not found."
+        });
       }
     })
     .catch(err => {
       console.log(err);
-      res.status(500).json({ error: err });
+      res.status(500).json({
+        error: err
+      });
     });
 });
 
 //  Create ONE user (register)
 router.post("/", (req, res, next) => {
-  User.find({ email: req.body.email })
+  User.find({
+      email: req.body.email
+    })
     .exec()
     .then(user => {
       if (user.length >= 1) {
@@ -79,16 +88,19 @@ router.post("/", (req, res, next) => {
     });
 });
 
-
-
 //  GET Login
 router.get("/", (req, res, next) => {
-  res.render("./pages/login/index", { message: "place holder for error", hide: true });
+  res.render("./pages/login/index", {
+    message: "place holder for error",
+    hide: true
+  });
 });
 
 //  POST Login
 router.post("/login", (req, res, next) => {
-  User.find({ email: req.body.email })
+  User.find({
+      email: req.body.email
+    })
     .exec()
     .then(user => {
       if (user.length < 1) {
@@ -104,16 +116,16 @@ router.post("/login", (req, res, next) => {
         }
 
         if (result) {
-          const token = jwt.sign(
-            {
+          const token = jwt.sign({
               email: user[0].email,
               userId: user[0]._id
             },
-            process.env.JWT_key,
-            {
+            settings.JWT_KEY, {
               expiresIn: "1h"
             }
           );
+          req.session.userId = user[0]._id;
+          if (req.session) console.log(req.session);
           return res.status(200).json({
             message: "Authorization Successful",
             token: token
@@ -127,35 +139,43 @@ router.post("/login", (req, res, next) => {
     .catch(err => {
       console.log(err);
       res.status(500).json({
-        error: err
+        error: 'Error logging in.'
       });
     });
 });
 
-//  Update ONE user
-router.patch("/:user", (req, res, next) => {
-  const user = req.params.user;
-  const updateOps = {};
-  for (const ops of req.body) {
-    updateOps[ops.propName] = ops.value;
-  }
-  User.update({ _id: user }, { $set: updateOps })
-    .exec()
-    .then(result => {
-      res.status(200).json(result);
-    })
-    .catch(err => {
-      res.status(500).json({
-        error: err
+//  UPDATE one user
+router.patch('/:id', async (req, res, next) => {
+  try {
+    const updater = await User.findOneAndUpdate({
+      _id: req.params.id
+    }, req.body);
+
+    if (updater != null) {
+      res.status(200).json({
+        message: "User Updated",
+        updated: req.body
       });
+    } else {
+      res.status(404).json({
+        message: "ERROR: Item not found."
+      })
+    }
+  } catch (error) {
+    res.status.apply(404).json({
+      message: "Item not found."
     });
+  }
+
 });
 
 //  Delete ONE user
 router.delete("/:user", (req, res, next) => {
 
   const user = req.params.user;
-  User.deleteOne({ _id: user })
+  User.deleteOne({
+      _id: user
+    })
     .exec()
     .then(result => {
       res.status(200).json({

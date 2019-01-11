@@ -1,6 +1,7 @@
 
 const express = require('express');
 const app = express();
+const settings = require('./settings');
 const morgan = require('morgan');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -8,9 +9,9 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 
-
 //  DB
-const connectionURL ='mongodb://' + process.env.MONGO_USER + ':' + process.env.MONGO_PW + '@ds035806.mlab.com:35806/mlab_2014'
+const connectionURL ='mongodb://' + settings.MONGO_USER + ':' + settings.MONGO_PW + settings.MONGO_URI;
+
 mongoose.connect(connectionURL, {useNewUrlParser: true, useCreateIndex: true});
 
 mongoose.Promise = global.Promise;
@@ -31,38 +32,31 @@ app.use((req, res, next) => {
     }
     next();
 });
+passport.serializeUser(function(user, done) {
+    done(null, user.id);
+  });
 
-
-
-
+  passport.deserializeUser(function(id, done) {
+    User.findById(id, function(err, user) {
+      done(err, user);
+    });
+  });
 //  Paths
 app.set('views', path.join(__dirname, '/api/view'));
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 
-
-//  Passport Configuration
-passport.serializeUser(function (user, cb) {
-    cb(null, user.id);
-  });
-
-  passport.deserializeUser(function (id, cb) {
-    userService.findById(id, function (err, user) {
-      if (err) {
-        return cb(err);
-      }
-      cb(null, user);
-    });
-  });
-
-
 //  Cookies
-app.set('trust proxy', 1) // trust first proxy
+//app.set('trust proxy', 1) // trust first proxy
 app.use(session({
-  secret: process.env.COOKIE_SECRET,
+  secret: settings.COOKIE_SECRET,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: true }
+  cookie: {
+      secure: true,
+      httpOnly: true,
+      ephemeral: true
+    }
 }));
 
 //  ROUTES
