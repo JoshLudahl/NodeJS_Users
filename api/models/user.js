@@ -7,7 +7,7 @@
 
 const mongoose = require('mongoose');
 
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     email: {
         type: mongoose.Schema.Types.String,
@@ -29,5 +29,11 @@ const userSchema = mongoose.Schema({
     }
 });
 
+userSchema.methods.findSimilarTypes = function(cb) {
+
+    console.log("hi");
+    const goats = this.email;
+    return goats;
+  };
 
 module.exports = mongoose.model('User', userSchema);

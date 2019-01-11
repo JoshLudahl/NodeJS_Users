@@ -190,4 +190,20 @@ router.delete("/:user", (req, res, next) => {
     });
 });
 
+router.get('/test/:id', async (req, res, next) => {
+
+  try {
+    const goat = await User.findById({_id: req.params.id});
+    const valid = await goat.findSimilarTypes(goat);
+
+    res.status(200).json({
+      message: "Good",
+      email: valid
+    })
+  } catch (error) {
+    res.status(404).json({
+      message: "Nones"
+    })
+  }
+});
 module.exports = router;
