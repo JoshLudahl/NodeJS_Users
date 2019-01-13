@@ -20,8 +20,6 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-
-
 //  Allow CORS access
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -61,9 +59,8 @@ app.use('/', require('./api/routes/index'));
 app.use('/users', require('./api/routes/users'));
 
 //  Admin Route
+//  Using auth middleware to protect endpoint and ensure login
 app.use('/admin', auth, require('./api/routes/admin'));
-
-
 
 //  CUSTOM ERROR HANDLING
 app.use((req, res, next) => {
@@ -80,7 +77,6 @@ app.use((error, req, res, next) => {
         }
     });
 });
-
 
 //  export the app
 module.exports = app;
