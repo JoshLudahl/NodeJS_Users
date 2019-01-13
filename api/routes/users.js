@@ -30,7 +30,7 @@ router.get("/:user", (req, res, next) => {
     .exec()
     .then(doc => {
       if (doc) {
-        console.log("User found: " + doc);
+        console.log(req.session.userId);
         res.status(200).json({
           message: "User found",
           email: doc.email,
@@ -75,12 +75,15 @@ router.post("/", (req, res, next) => {
             });
             User.create(user)
               .then(result => {
-                console.log(result);
+
               })
               .catch(err => console.log(err));
             res.status(201).json({
               message: "Okay, POST was good",
-              createdUser: user
+              createdUser: {
+                id: user._id,
+                email: user.email
+              }
             });
           }
         });
@@ -125,15 +128,18 @@ router.post("/login", (req, res, next) => {
             }
           );
           req.session.userId = user[0]._id;
+
           if (req.session) console.log(req.session);
-          return res.status(200).json({
-            message: "Authorization Successful",
-            token: token
-          });
-        }
+          res.redirect('/admin');
+          // return res.status(200).json({
+          //   message: "Authorization Successful",
+          //   token: token
+          // });
+        } else {
         res.status(401).json({
           message: "Authorization Failed(3)."
         });
+      }
       });
     })
     .catch(err => {
@@ -152,6 +158,7 @@ router.patch('/:id', async (req, res, next) => {
     }, req.body);
 
     if (updater != null) {
+
       res.status(200).json({
         message: "User Updated",
         updated: req.body
@@ -190,20 +197,4 @@ router.delete("/:user", (req, res, next) => {
     });
 });
 
-router.get('/test/:id', async (req, res, next) => {
-
-  try {
-    const goat = await User.findById({_id: req.params.id});
-    const valid = await goat.findSimilarTypes(goat);
-
-    res.status(200).json({
-      message: "Good",
-      email: valid
-    })
-  } catch (error) {
-    res.status(404).json({
-      message: "Nones"
-    })
-  }
-});
 module.exports = router;

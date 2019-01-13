@@ -6,8 +6,8 @@ const morgan = require('morgan');
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const session = require('express-session');
-const passport = require('passport');
+const sessions = require('client-sessions');
+const auth = require('./api/middleware/user_check')
 
 //  DB
 const connectionURL ='mongodb://' + settings.MONGO_USER + ':' + settings.MONGO_PW + settings.MONGO_URI;
@@ -32,30 +32,24 @@ app.use((req, res, next) => {
     }
     next();
 });
-passport.serializeUser(function(user, done) {
-    done(null, user.id);
-  });
 
-  passport.deserializeUser(function(id, done) {
-    User.findById(id, function(err, user) {
-      done(err, user);
-    });
-  });
 //  Paths
 app.set('views', path.join(__dirname, '/api/view'));
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 
 //  Cookies
-//app.set('trust proxy', 1) // trust first proxy
-app.use(session({
+app.set('trust proxy', 1) // trust first proxy
+app.use(sessions({
   secret: settings.COOKIE_SECRET,
-  resave: false,
+  cookieName: 'session',
+  resave: true,
   saveUninitialized: true,
   cookie: {
-      secure: true,
+      secure: false,
       httpOnly: true,
-      ephemeral: true
+      ephemeral: true,
+      overwrite: true
     }
 }));
 
@@ -67,7 +61,7 @@ app.use('/', require('./api/routes/index'));
 app.use('/users', require('./api/routes/users'));
 
 //  Admin Route
-app.use('/admin', require('./api/routes/admin'));
+app.use('/admin', auth, require('./api/routes/admin'));
 
 
 

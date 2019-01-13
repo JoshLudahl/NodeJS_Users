@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.String,
         required: true
     },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -29,11 +33,14 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-userSchema.methods.findSimilarTypes = function(cb) {
+//  Allows updated timestamp to be updated aside from updating user details
+userSchema.methods.setCurrentTime = function(cb) {
+    this.updatedAt = Date.now;
+    return cb;
+};
 
-    console.log("hi");
-    const goats = this.email;
-    return goats;
-  };
+userSchema.methods.comparePasswords = function(cb) {
+    return this.passwords == cb;
+}
 
 module.exports = mongoose.model('User', userSchema);
