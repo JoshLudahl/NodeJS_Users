@@ -31,6 +31,8 @@
       integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
       crossorigin="anonymous"
     ></script>
+
+    <title>Please Register</title>
   </head>
 
   <body>
@@ -42,9 +44,9 @@
           <div class="col-12 col-md-8 col-lg-6 col-xl-5 text-left">
             <div class="fdb-box">
               <div class="row">
-                <form action="/users/login" method="POST">
+                <form action="/users/" method="POST">
                 <div class="col">
-                  <h1>Log In</h1>
+                  <h1>Register</h1>
                   <p class="h3">Please enter your credentials below:</p>
                 </div>
               </div>
@@ -62,6 +64,18 @@
                     name="password"
                   />
                 </div>
+
+              </div>
+              <div class="row mt-4">
+                <div class="col">
+                  <input
+                    type="password"
+                    class="form-control"
+                    placeholder="Confirm Password"
+                    name="password2"
+                  />
+                </div>
+
               </div>
               <div class="row mt-4">
                 <div class="col">
@@ -69,10 +83,7 @@
                 </div>
               </div>
             </form>
-            <%if (!hide) { %>
 
-              <%= message %>
-              <% } %>
             </div>
           </div>
         </div>

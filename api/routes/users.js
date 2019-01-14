@@ -6,7 +6,20 @@ const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const jwt_check = require("../middleware/jwt_authorize");
-const mw = require('../middleware/user_check')
+const auth = require('../middleware/user_check')
+
+//  Defailt to load login
+router.get('/', (req, res, next) => {
+  res.render('pages/user/login');
+});
+// GET Login
+router.get('/login', (req, res, next) => {
+  res.render('pages/user/login');
+});
+//  Get Register page
+router.get('/register', (req, res, next) => {
+  res.render('pages/user/register');
+});
 
 //  Get ALL users
 router.get("/users", (req, res, next) => {
@@ -25,7 +38,6 @@ router.get("/users", (req, res, next) => {
 //  Get ONE user
 router.get("/:user", (req, res, next) => {
   const userId = req.params.user;
-
   User.findById(userId)
     .exec()
     .then(doc => {
@@ -62,41 +74,36 @@ router.post("/", (req, res, next) => {
           message: "Username/email not available"
         });
       } else {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
-          if (err) {
-            return res.status(500).json({
-              error: err
-            });
-          } else {
-            const user = new User({
-              _id: new mongoose.Types.ObjectId(),
-              password: hash,
-              email: req.body.email
-            });
-            User.create(user)
-              .then(result => {
+        if (req.body.password == req.body.password2) {
+          bcrypt.hash(req.body.password, 10, (err, hash) => {
+            if (err) {
+              return res.status(500).json({
+                error: err
+              });
+            } else {
+              const user = new User({
+                _id: new mongoose.Types.ObjectId(),
+                password: hash,
+                email: req.body.email
+              });
+              User.create(user)
+                .then(result => {
 
-              })
-              .catch(err => console.log(err));
-            res.status(201).json({
-              message: "Okay, POST was good",
-              createdUser: {
-                id: user._id,
-                email: user.email
-              }
-            });
-          }
-        });
+                })
+                .catch(err => console.log(err));
+              res.status(201).json({
+                message: "Okay, POST was good",
+                createdUser: {
+                  id: user._id,
+                  email: user.email
+                }
+              });
+            }
+          });
+        }
+        res.status(200).json({message: 'passwords do not match'});
       }
     });
-});
-
-//  GET Login
-router.get("/", (req, res, next) => {
-  res.render("./pages/login/index", {
-    message: "place holder for error",
-    hide: true
-  });
 });
 
 //  POST Login
@@ -136,10 +143,10 @@ router.post("/login", (req, res, next) => {
           //   token: token
           // });
         } else {
-        res.status(401).json({
-          message: "Authorization Failed(3)."
-        });
-      }
+          res.status(401).json({
+            message: "Authorization Failed(3)."
+          });
+        }
       });
     })
     .catch(err => {
