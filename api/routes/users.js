@@ -88,7 +88,7 @@ router.post("/", (req, res, next) => {
               });
               User.create(user)
                 .then(result => {
-
+                  //  do something if need be, maybe log in, or whatever
                 })
                 .catch(err => console.log(err));
               res.status(201).json({
