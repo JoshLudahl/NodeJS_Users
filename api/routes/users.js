@@ -8,7 +8,7 @@ const bcrypt = require("bcryptjs");
 const jwt_check = require("../middleware/jwt_authorize");
 const auth = require('../middleware/user_check')
 
-//  Defailt to load login
+//  Default to load login
 router.get('/', (req, res, next) => {
   res.render('pages/user/login');
 });
@@ -101,7 +101,9 @@ router.post("/", (req, res, next) => {
             }
           });
         }
-        res.status(200).json({message: 'passwords do not match'});
+        res.status(200).json({
+          message: 'passwords do not match'
+        });
       }
     });
 });
@@ -126,18 +128,23 @@ router.post("/login", (req, res, next) => {
         }
 
         if (result) {
-          const token = jwt.sign({
-              email: user[0].email,
-              userId: user[0]._id
-            },
-            settings.JWT_KEY, {
-              expiresIn: "1h"
-            }
-          );
+          //  Uncomment if implementing JWT
+          // const token = jwt.sign({
+          //     email: user[0].email,
+          //     userId: user[0]._id
+          //   },
+          //   settings.JWT_KEY, {
+          //     expiresIn: "1h"
+          //   }
+          // );
+
+          //  Add userId to the session variable
           req.session.userId = user[0]._id;
 
           if (req.session) console.log(req.session);
           res.redirect('/admin');
+
+          //  Uncomment if implementing JWT
           // return res.status(200).json({
           //   message: "Authorization Successful",
           //   token: token
@@ -180,12 +187,10 @@ router.patch('/:id', async (req, res, next) => {
       message: "Item not found."
     });
   }
-
 });
 
 //  Delete ONE user
 router.delete("/:user", (req, res, next) => {
-
   const user = req.params.user;
   User.deleteOne({
       _id: user
