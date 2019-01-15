@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const settings = require('../../settings');
+//  const settings = require('../../settings');
 const mongoose = require("mongoose");
 const User = require("../models/user");
-const jwt = require("jsonwebtoken");
+//  const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const jwt_check = require("../middleware/jwt_authorize");
-const auth = require('../middleware/user_check')
+//  const jwt_check = require("../middleware/jwt_authorize");
+//  Uncomment and use auth for securing an additional route
+//  const auth = require('../middleware/user_check')
 
 //  Default to load login
 router.get('/', (req, res, next) => {
@@ -86,6 +87,8 @@ router.post("/", (req, res, next) => {
                 password: hash,
                 email: req.body.email
               });
+
+              //  change to async?
               User.create(user)
                 .then(result => {
                   //  do something if need be, maybe log in, or whatever
